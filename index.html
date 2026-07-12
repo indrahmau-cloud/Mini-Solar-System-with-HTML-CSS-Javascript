@@ -1,28 +1,322 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
 <head>
-<title>Solar System</title>
-<link rel=stylesheet href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Solar System Explorer — An interactive educational app for students to explore planets, take quizzes, compare worlds, and earn badges.">
+  <title>Solar System Explorer — Educational App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <div class="sun">
-      <img src="sun.png" alt="sun">
+
+  <!-- Stars canvas (persistent background) -->
+  <canvas id="stars-canvas" aria-hidden="true"></canvas>
+
+  <!-- ===================== HOME SCREEN ===================== -->
+  <div id="home-screen" class="screen">
+    <div class="home-content">
+      <div class="home-sun-icon" aria-hidden="true">☀️</div>
+      <h1 class="home-title">Solar System <span class="gradient-text">Explorer</span></h1>
+      <p class="home-subtitle">An interactive educational journey through our solar system. Explore planets, test your knowledge, and earn space badges!</p>
+      <div class="home-features" aria-label="App features">
+        <span class="feat-chip">🌍 Explore Planets</span>
+        <span class="feat-chip">🧠 Take Quizzes</span>
+        <span class="feat-chip">🏆 Earn Badges</span>
+        <span class="feat-chip">🔊 Audio Learning</span>
+        <span class="feat-chip">📊 Compare Worlds</span>
+        <span class="feat-chip">⏱️ Speed Challenge</span>
+      </div>
+      <button id="start-btn" class="btn-primary btn-xl" aria-label="Start learning about the solar system">
+        Start Learning <span class="btn-arrow" aria-hidden="true">→</span>
+      </button>
     </div>
-    <div class="mercury"></div>
-    <div class="venus"></div>
-    <div class="earth">
-      <div class="moon"></div>
-    </div>
-    <div class="mars"></div>
-    <div class="jupiter"></div>
-    <div class="saturn"></div>
-    <div class="uranus"></div>
-    <div class="neptune"></div>
-    <div class="pluto">
+    <div class="home-orbit-deco" aria-hidden="true">
+      <div class="deco-ring deco-ring-1"></div>
+      <div class="deco-ring deco-ring-2"></div>
+      <div class="deco-ring deco-ring-3"></div>
     </div>
   </div>
+
+  <!-- ===================== MAIN APP SCREEN ===================== -->
+  <div id="app-screen" class="screen hidden">
+
+    <!-- TOP NAVIGATION -->
+    <nav class="top-nav" role="navigation" aria-label="Main navigation">
+      <button id="home-btn" class="nav-logo" aria-label="Return to home screen" title="Home">
+        <span class="nav-logo-icon" aria-hidden="true">☀️</span>
+        <span class="nav-logo-text">Solar Explorer</span>
+      </button>
+
+      <div class="search-container" role="search">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="text" id="search-input" placeholder="Search planets…" aria-label="Search for a planet" autocomplete="off" spellcheck="false">
+        <div id="search-dropdown" class="search-dropdown hidden" role="listbox" aria-label="Search results"></div>
+      </div>
+
+      <div class="nav-tabs" role="tablist" aria-label="App modes">
+        <button class="nav-tab active" data-mode="explore" role="tab" aria-selected="true" id="tab-explore">🌍 Explore</button>
+        <button class="nav-tab" data-mode="quiz" role="tab" aria-selected="false" id="tab-quiz">🧠 Quiz</button>
+        <button class="nav-tab" data-mode="challenge" role="tab" aria-selected="false" id="tab-challenge">⏱️ Challenge</button>
+        <button class="nav-tab" data-mode="compare" role="tab" aria-selected="false" id="tab-compare">📊 Compare</button>
+        <button class="nav-tab" data-mode="scale" role="tab" aria-selected="false" id="tab-scale">📏 Scale</button>
+      </div>
+
+      <div class="nav-controls">
+        <button id="speed-btn" class="icon-btn" title="Change animation speed" aria-label="Change animation speed">1x</button>
+        <button id="theme-btn" class="icon-btn" title="Toggle dark/light theme" aria-label="Toggle dark/light theme">🌙</button>
+        <button id="fontsize-btn" class="icon-btn" title="Toggle large text" aria-label="Toggle large text mode">A+</button>
+        <button id="achievements-btn" class="icon-btn" title="View achievements" aria-label="View achievements">🏆</button>
+      </div>
+    </nav>
+
+    <!-- =================== EXPLORE MODE =================== -->
+    <div id="explore-mode" class="mode-panel active" role="tabpanel" aria-labelledby="tab-explore">
+
+      <div class="solar-system-viewport" id="solar-viewport" tabindex="-1" aria-label="Solar system — drag to pan, scroll to zoom">
+        <div id="solar-system" aria-label="Interactive solar system">
+          <!-- Orbit rings and planets created dynamically by JS -->
+        </div>
+
+        <div class="zoom-controls" role="group" aria-label="Zoom controls">
+          <button id="zoom-in-btn" class="zoom-btn" aria-label="Zoom in" title="Zoom in">+</button>
+          <button id="zoom-reset-btn" class="zoom-btn" aria-label="Reset view" title="Reset view">⊙</button>
+          <button id="zoom-out-btn" class="zoom-btn" aria-label="Zoom out" title="Zoom out">−</button>
+        </div>
+
+        <div class="explore-hint" aria-hidden="true">✨ Click any planet to explore • Scroll to zoom • Drag to pan</div>
+      </div>
+
+      <!-- Planet Info Panel (slide in from right) -->
+      <div id="info-panel" class="info-panel" role="dialog" aria-label="Planet information" aria-hidden="true">
+        <button id="info-close-btn" class="info-close" aria-label="Close planet information">✕</button>
+
+        <div id="info-visual" class="info-visual" aria-hidden="true">
+          <div class="info-planet-glow" id="info-glow"></div>
+          <img id="info-img" src="" alt="" class="info-planet-img">
+        </div>
+
+        <div class="info-scrollable">
+          <div class="info-header">
+            <h2 id="info-name" class="info-planet-name">Select a Planet</h2>
+            <span id="info-type" class="info-type-tag"></span>
+          </div>
+
+          <div id="info-stats" class="info-stats-grid" role="list" aria-label="Planet statistics"></div>
+
+          <div class="info-facts-section">
+            <h3 class="info-facts-heading">✨ Fun Facts</h3>
+            <ul id="info-facts-list" class="info-facts" aria-label="Fun facts"></ul>
+          </div>
+
+          <div class="info-actions">
+            <button id="listen-btn" class="btn-secondary" aria-label="Listen to planet information using text to speech">
+              <span class="btn-icon" aria-hidden="true">🔊</span> Listen
+            </button>
+            <button id="compare-from-info-btn" class="btn-secondary" aria-label="Compare this planet with another">
+              <span class="btn-icon" aria-hidden="true">📊</span> Compare
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== QUIZ MODE =================== -->
+    <div id="quiz-mode" class="mode-panel hidden" role="tabpanel" aria-labelledby="tab-quiz">
+      <div class="quiz-wrapper">
+
+        <!-- Start Screen -->
+        <div id="quiz-start" class="quiz-screen">
+          <div class="quiz-mode-icon" aria-hidden="true">🧠</div>
+          <h2>Planet Knowledge Quiz</h2>
+          <p>Test what you know about our solar system with 10 questions. Take your time — there's no clock here!</p>
+          <div class="mode-chips">
+            <span>10 Questions</span>
+            <span>Multiple Choice</span>
+            <span>No Time Limit</span>
+          </div>
+          <button id="quiz-start-btn" class="btn-primary">Begin Quiz</button>
+        </div>
+
+        <!-- Question Screen -->
+        <div id="quiz-question" class="quiz-screen hidden">
+          <div class="quiz-top-bar">
+            <div class="progress-track" role="progressbar" aria-label="Quiz progress">
+              <div id="quiz-prog-fill" class="progress-fill"></div>
+            </div>
+            <div id="quiz-status" class="quiz-status" aria-live="polite">Question 1 of 10 • Score: 0</div>
+          </div>
+          <div class="question-card">
+            <div id="quiz-q-planet" class="q-planet-img" aria-hidden="true"></div>
+            <h3 id="quiz-q-text" class="q-text"></h3>
+            <div id="quiz-options" class="options-grid" role="group" aria-label="Answer options"></div>
+          </div>
+          <div id="quiz-feedback" class="quiz-feedback hidden" role="alert" aria-live="assertive">
+            <span id="quiz-feedback-icon" aria-hidden="true"></span>
+            <span id="quiz-feedback-text"></span>
+          </div>
+          <button id="quiz-next-btn" class="btn-primary hidden">Next Question →</button>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="quiz-result" class="quiz-screen hidden">
+          <div id="quiz-result-emoji" class="result-emoji" aria-hidden="true">🏆</div>
+          <h2 id="quiz-result-title">Quiz Complete!</h2>
+          <div id="quiz-result-score" class="result-score-display" aria-live="polite"></div>
+          <div id="quiz-result-badge" class="result-badge-display" aria-live="polite"></div>
+          <div id="quiz-result-msg" class="result-message" aria-live="polite"></div>
+          <div class="result-btns">
+            <button id="quiz-retry-btn" class="btn-secondary">Retry Quiz</button>
+            <button id="quiz-explore-btn" class="btn-primary">Explore Planets</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================== CHALLENGE MODE =================== -->
+    <div id="challenge-mode" class="mode-panel hidden" role="tabpanel" aria-labelledby="tab-challenge">
+      <div class="quiz-wrapper">
+
+        <!-- Start Screen -->
+        <div id="chal-start" class="quiz-screen">
+          <div class="quiz-mode-icon" aria-hidden="true">⏱️</div>
+          <h2>Speed Challenge!</h2>
+          <p>Answer 10 questions against the clock! Each question has only <strong>15 seconds</strong>. Speed and accuracy both matter!</p>
+          <div class="mode-chips danger-chips">
+            <span>10 Questions</span>
+            <span>⏱️ 15 sec each</span>
+            <span>Speed Matters!</span>
+          </div>
+          <button id="chal-start-btn" class="btn-primary btn-danger">Accept Challenge!</button>
+        </div>
+
+        <!-- Question Screen -->
+        <div id="chal-question" class="quiz-screen hidden">
+          <div class="quiz-top-bar challenge-bar">
+            <div class="progress-track" role="progressbar" aria-label="Challenge progress">
+              <div id="chal-prog-fill" class="progress-fill danger"></div>
+            </div>
+            <div id="chal-status" class="quiz-status" aria-live="polite">Question 1 of 10</div>
+            <div class="timer-wrap" aria-label="Time remaining" role="timer">
+              <div class="timer-circle-svg">
+                <svg viewBox="0 0 44 44" class="timer-svg" aria-hidden="true">
+                  <circle cx="22" cy="22" r="20" class="timer-track"/>
+                  <circle cx="22" cy="22" r="20" class="timer-ring" id="timer-ring"/>
+                </svg>
+                <span id="timer-num" class="timer-num" aria-label="Seconds remaining">15</span>
+              </div>
+            </div>
+          </div>
+          <div class="question-card">
+            <h3 id="chal-q-text" class="q-text"></h3>
+            <div id="chal-options" class="options-grid" role="group" aria-label="Answer options"></div>
+          </div>
+          <div id="chal-feedback" class="quiz-feedback hidden" role="alert" aria-live="assertive">
+            <span id="chal-feedback-icon" aria-hidden="true"></span>
+            <span id="chal-feedback-text"></span>
+          </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="chal-result" class="quiz-screen hidden">
+          <div class="result-emoji" aria-hidden="true">⚡</div>
+          <h2>Challenge Complete!</h2>
+          <div id="chal-result-score" class="result-score-display" aria-live="polite"></div>
+          <div id="chal-result-badge" class="result-badge-display" aria-live="polite"></div>
+          <div class="result-btns">
+            <button id="chal-retry-btn" class="btn-secondary">Try Again</button>
+            <button id="chal-explore-btn" class="btn-primary">Explore Planets</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================== COMPARE MODE =================== -->
+    <div id="compare-mode" class="mode-panel hidden" role="tabpanel" aria-labelledby="tab-compare">
+      <div class="compare-wrapper">
+        <h2 class="mode-title">🔍 Planet Comparison</h2>
+        <p class="mode-subtitle">Select two planets to compare them side by side</p>
+
+        <div class="compare-selectors">
+          <div class="selector-box">
+            <div id="compare-img-a" class="compare-planet-display" aria-hidden="true">
+              <div class="compare-placeholder">?</div>
+            </div>
+            <label for="compare-a" class="sr-only">First planet</label>
+            <select id="compare-a" class="planet-select" aria-label="Select first planet to compare">
+              <option value="">Select Planet A…</option>
+            </select>
+          </div>
+
+          <div class="vs-badge" aria-hidden="true">VS</div>
+
+          <div class="selector-box">
+            <div id="compare-img-b" class="compare-planet-display" aria-hidden="true">
+              <div class="compare-placeholder">?</div>
+            </div>
+            <label for="compare-b" class="sr-only">Second planet</label>
+            <select id="compare-b" class="planet-select" aria-label="Select second planet to compare">
+              <option value="">Select Planet B…</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="compare-result" class="compare-result hidden">
+          <table class="compare-table" role="table" aria-label="Planet comparison table">
+            <thead>
+              <tr>
+                <th scope="col">Property</th>
+                <th scope="col" id="compare-col-a">Planet A</th>
+                <th scope="col" id="compare-col-b">Planet B</th>
+              </tr>
+            </thead>
+            <tbody id="compare-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== SCALE MODE =================== -->
+    <div id="scale-mode" class="mode-panel hidden" role="tabpanel" aria-labelledby="tab-scale">
+      <div class="scale-wrapper">
+        <h2 class="mode-title">📏 Solar System Scale</h2>
+        <p class="mode-subtitle">Compare how planets stack up against each other</p>
+
+        <div class="scale-tabs" role="tablist" aria-label="Scale categories">
+          <button class="scale-tab active" data-scale="size" role="tab" aria-selected="true">🪐 Sizes</button>
+          <button class="scale-tab" data-scale="distance" role="tab" aria-selected="false">📍 Distances</button>
+          <button class="scale-tab" data-scale="gravity" role="tab" aria-selected="false">⬇️ Gravity</button>
+          <button class="scale-tab" data-scale="moons" role="tab" aria-selected="false">🌙 Moons</button>
+          <button class="scale-tab" data-scale="period" role="tab" aria-selected="false">⏰ Orbital Period</button>
+        </div>
+
+        <div id="scale-display" class="scale-display" aria-live="polite"></div>
+      </div>
+    </div>
+
+  </div><!-- end #app-screen -->
+
+  <!-- =================== ACHIEVEMENTS MODAL =================== -->
+  <div id="achievements-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Achievements panel">
+    <div class="modal-content" role="document">
+      <div class="modal-header">
+        <h2>🏆 Achievements</h2>
+        <button id="close-achievements" class="modal-close" aria-label="Close achievements panel">✕</button>
+      </div>
+      <div id="achievements-grid" class="achievements-grid" aria-label="Achievement list"></div>
+      <div class="achievements-footer">
+        <span id="achievements-count" aria-live="polite">0 / 7 unlocked</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== BADGE EARNED POPUP =================== -->
+  <div id="badge-popup" class="badge-popup hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+
   <script src="script.js"></script>
 </body>
-
 </html>
