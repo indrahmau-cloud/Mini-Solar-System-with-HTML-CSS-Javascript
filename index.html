@@ -61,10 +61,17 @@
         <button class="nav-tab" data-mode="quiz" role="tab" aria-selected="false" id="tab-quiz">🧠 Quiz</button>
         <button class="nav-tab" data-mode="challenge" role="tab" aria-selected="false" id="tab-challenge">⏱️ Challenge</button>
         <button class="nav-tab" data-mode="compare" role="tab" aria-selected="false" id="tab-compare">📊 Compare</button>
+        <button class="nav-tab" data-mode="games" role="tab" aria-selected="false" id="tab-games">🎮 Games</button>
         <button class="nav-tab" data-mode="scale" role="tab" aria-selected="false" id="tab-scale">📏 Scale</button>
       </div>
 
       <div class="nav-controls">
+        <button id="prev-planet-btn" class="icon-btn" title="View previous planet" aria-label="View previous planet">←</button>
+        <button id="next-planet-btn" class="icon-btn" title="View next planet" aria-label="View next planet">→</button>
+        <button id="play-btn" class="icon-btn" title="Pause animation" aria-label="Pause animation">⏸</button>
+        <button id="reset-btn" class="icon-btn" title="Reset view" aria-label="Reset view">⟲</button>
+        <button id="fullscreen-btn" class="icon-btn" title="Toggle full screen" aria-label="Toggle full screen">⛶</button>
+        <button id="contrast-btn" class="icon-btn" title="Toggle high contrast mode" aria-label="Toggle high contrast mode">♿</button>
         <button id="speed-btn" class="icon-btn" title="Change animation speed" aria-label="Change animation speed">1x</button>
         <button id="theme-btn" class="icon-btn" title="Toggle dark/light theme" aria-label="Toggle dark/light theme">🌙</button>
         <button id="fontsize-btn" class="icon-btn" title="Toggle large text" aria-label="Toggle large text mode">A+</button>
@@ -80,12 +87,21 @@
           <!-- Orbit rings and planets created dynamically by JS -->
         </div>
 
+        <div class="explore-progress" aria-live="polite">
+          <div class="explore-progress-bar">
+            <div id="explore-progress-fill" class="explore-progress-fill"></div>
+          </div>
+          <span id="explore-progress-text">0 / 10 planets explored</span>
+        </div>
+
         <div class="zoom-controls" role="group" aria-label="Zoom controls">
           <button id="zoom-in-btn" class="zoom-btn" aria-label="Zoom in" title="Zoom in">+</button>
           <button id="zoom-reset-btn" class="zoom-btn" aria-label="Reset view" title="Reset view">⊙</button>
           <button id="zoom-out-btn" class="zoom-btn" aria-label="Zoom out" title="Zoom out">−</button>
         </div>
 
+        <div id="planet-tooltip" class="planet-tooltip hidden" role="status" aria-live="polite"></div>
+        <div id="planet-preview-card" class="planet-preview-card hidden" role="status" aria-live="polite"></div>
         <div class="explore-hint" aria-hidden="true">✨ Click any planet to explore • Scroll to zoom • Drag to pan</div>
       </div>
 
@@ -117,6 +133,9 @@
             </button>
             <button id="compare-from-info-btn" class="btn-secondary" aria-label="Compare this planet with another">
               <span class="btn-icon" aria-hidden="true">📊</span> Compare
+            </button>
+            <button id="learn-more-btn" class="btn-primary" aria-label="Learn more about this planet">
+              <span class="btn-icon" aria-hidden="true">🔭</span> Learn More
             </button>
           </div>
         </div>
@@ -167,6 +186,7 @@
           <div id="quiz-result-score" class="result-score-display" aria-live="polite"></div>
           <div id="quiz-result-badge" class="result-badge-display" aria-live="polite"></div>
           <div id="quiz-result-msg" class="result-message" aria-live="polite"></div>
+          <div id="quiz-certificate" class="certificate-card hidden"></div>
           <div class="result-btns">
             <button id="quiz-retry-btn" class="btn-secondary">Retry Quiz</button>
             <button id="quiz-explore-btn" class="btn-primary">Explore Planets</button>
@@ -276,6 +296,47 @@
             </thead>
             <tbody id="compare-tbody"></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== GAMES MODE =================== -->
+    <div id="games-mode" class="mode-panel hidden" role="tabpanel" aria-labelledby="tab-games">
+      <div class="games-wrapper">
+        <h2 class="mode-title">🎮 Space Learning Games</h2>
+        <p class="mode-subtitle">Try a quick guessing game and an order-the-planets challenge.</p>
+
+        <div class="games-grid">
+          <div class="game-card">
+            <div class="game-icon">🔭</div>
+            <h3>Guess the Planet</h3>
+            <p>Use clues to identify the planet from the solar system.</p>
+            <button id="start-guess-btn" class="btn-primary">Play Guessing Game</button>
+          </div>
+          <div class="game-card">
+            <div class="game-icon">🪐</div>
+            <h3>Order the Planets</h3>
+            <p>Arrange the planets from the Sun outward.</p>
+            <button id="start-order-btn" class="btn-primary">Play Order Game</button>
+          </div>
+        </div>
+
+        <div id="guess-game-screen" class="game-screen hidden">
+          <div id="guess-question" class="question-card"></div>
+          <div id="guess-options" class="options-grid"></div>
+          <div id="guess-feedback" class="quiz-feedback hidden"></div>
+          <button id="guess-next-btn" class="btn-secondary hidden">Next Clue</button>
+        </div>
+
+        <div id="order-game-screen" class="game-screen hidden">
+          <div id="order-instructions" class="question-card"></div>
+          <div id="order-pool" class="order-pool"></div>
+          <div id="order-zone" class="order-zone"></div>
+          <div class="result-btns">
+            <button id="order-check-btn" class="btn-primary">Check Order</button>
+            <button id="order-reset-btn" class="btn-secondary">Reset</button>
+          </div>
+          <div id="order-feedback" class="quiz-feedback hidden"></div>
         </div>
       </div>
     </div>

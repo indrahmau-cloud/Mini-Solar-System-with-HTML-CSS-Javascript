@@ -1,7 +1,7 @@
-<h1 align="center">☀️ Mini Solar System</h1>
+<h1 align="center">☀️ Solar System Explorer</h1>
 
 <p align="center">
-  A visually engaging mini solar system built using HTML, CSS, and JavaScript, featuring animated planetary orbits and smooth interactions.
+  An interactive educational website for exploring the solar system, learning planet facts, taking quizzes, and playing space-themed games.
 </p>
 
 <p align="center">
@@ -13,53 +13,65 @@
 
 ---
 
-## 🌌 Introduction
+## 🌌 Overview
 
-This project is a **mini solar system simulation** created using **pure HTML, CSS, and JavaScript**.  
-It demonstrates how frontend technologies can be used to build **animations, rotations, and dynamic visual effects** without external libraries.
+Solar System Explorer is a polished educational experience built with plain HTML, CSS, and vanilla JavaScript. It keeps the original solar-system visual style while adding interactive learning tools for students aged 10–16.
 
-The planets orbit around the sun with smooth motion, creating an interactive and educational visualization.
+The app lets users explore planets, compare worlds, listen to planet information, unlock achievements, and test their knowledge with quizzes and games.
 
 ---
 
-## 🎯 Features
+## ✨ Features
 
-- ☀️ Central sun with orbiting planets  
-- 🪐 Smooth CSS animations for planetary motion  
-- ⚡ JavaScript-controlled interactions (if any)  
-- 📱 Responsive design  
-- 🎨 Clean and visually appealing UI  
-- 🚫 No external libraries used  
+- 🪐 Interactive solar system with clickable planets
+- 📖 Detailed planet info panels with facts, statistics, and fun facts
+- 🔊 Text-to-speech support for planet learning
+- 🧠 Quiz mode and timed challenge mode
+- 📊 Planet comparison tool
+- 🎮 Space learning games including Guess the Planet and Order the Planets
+- 🏆 Achievement system and progress tracking
+- ♿ Accessibility-friendly controls, large-text mode, and high-contrast support
+- 🎨 Responsive layout with animated background effects
 
 ---
 
 ## 🛠️ Technologies Used
 
-- **HTML5** – Structure of the solar system  
-- **CSS3** – Styling, animations, and orbits  
-- **JavaScript** – Interactivity and dynamic behavior  
+- HTML5 for the app structure
+- CSS3 for styling, animations, and responsive layout
+- Vanilla JavaScript for interactivity, data handling, and UI behavior
 
 ---
 
-## 🧠 Concepts Demonstrated
+## ▶️ How to Run
 
-- CSS `@keyframes` animations  
-- Transform & rotate properties  
-- Absolute positioning  
-- JavaScript DOM manipulation  
-- Animation timing & delays  
-
----
-
-## 📁 Folder Structure
+Open the project in a browser by launching the main file:
 
 ```text
-📦 mini-solar-system
- ┣ 📂 css
- ┃ ┗ 📜 style.css
- ┣ 📂 js
- ┃ ┗ 📜 script.js
- ┣ 📂 assets
- ┃ ┗ 🖼️ planet-images
+index.html
+```
+
+You can also serve the folder locally with a simple static server if you prefer.
+
+---
+
+## 📁 Project Structure
+
+```text
+📦 Mini-Solar-System-with-HTML-CSS-Javascript
  ┣ 📜 index.html
+ ┣ 📜 style.css
+ ┣ 📜 script.js
  ┗ 📜 README.md
+```
+
+---
+
+## 🎯 Learning Goals
+
+This project demonstrates:
+
+- DOM manipulation with JavaScript
+- Reusable UI components and state-driven interactions
+- CSS transitions, animations, and responsive design
+- Building a playful educational experience without frameworks

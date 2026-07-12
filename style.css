@@ -37,6 +37,8 @@
   --warning-bg:      rgba(250, 204, 21, 0.12);
   --danger:          #f87171;
   --danger-bg:       rgba(248, 113, 113, 0.12);
+  --contrast-bg:     #000000;
+  --contrast-glow:   rgba(255,255,255,0.18);
 
   --orbit-color:     rgba(255, 255, 255, 0.07);
   --orbit-color-hover: rgba(255, 255, 255, 0.18);
@@ -91,6 +93,18 @@
 
 [data-theme="light"] #stars-canvas { opacity: 0.25; }
 [data-theme="light"] .home-content { color: var(--text-primary); }
+body.high-contrast {
+  --bg-primary: var(--contrast-bg);
+  --bg-secondary: #111827;
+  --bg-card: rgba(0,0,0,0.9);
+  --glass-bg: rgba(255,255,255,0.12);
+  --glass-border: rgba(255,255,255,0.3);
+  --text-primary: #ffffff;
+  --text-secondary: #f3f4f6;
+  --text-muted: #d1d5db;
+  --orbit-color: rgba(255,255,255,0.22);
+  --orbit-color-hover: rgba(255,255,255,0.45);
+}
 
 /* ---- Large Text Mode ---- */
 body.large-text { font-size: 110%; }
@@ -360,6 +374,34 @@ ul { list-style: none; }
 .nav-logo-text { font-size: 0.95rem; letter-spacing: 0.01em; }
 
 /* Search */
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), transform var(--transition), border-color var(--transition);
+}
+
+.icon-btn:hover,
+.icon-btn.active {
+  background: var(--glass-bg-strong);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
 .search-container {
   position: relative;
   display: flex;
@@ -525,6 +567,9 @@ ul { list-style: none; }
 }
 
 .solar-system-viewport:active { cursor: grabbing; }
+.solar-system-viewport.is-focusing {
+  filter: blur(0.5px) saturate(1.08);
+}
 
 #solar-system {
   position: absolute;
@@ -548,6 +593,10 @@ ul { list-style: none; }
 }
 
 .orbit-ring.highlighted { border-color: var(--orbit-color-hover); }
+.orbit-ring.is-active {
+  border-color: rgba(123,97,255,0.8);
+  box-shadow: 0 0 18px rgba(123,97,255,0.2);
+}
 
 /* Asteroid belt */
 .asteroid-belt {
@@ -585,7 +634,8 @@ ul { list-style: none; }
 }
 
 /* Planet celestial bodies */
-.celestial {
+.celestial,
+.moon-orbiter {
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: pointer;
@@ -597,8 +647,26 @@ ul { list-style: none; }
   transition: filter var(--transition);
 }
 
+.moon-orbiter {
+  z-index: 8;
+  cursor: default;
+  pointer-events: none;
+}
+
+.moon-orbiter .planet-body {
+  width: var(--moon-size, 8px);
+  height: var(--moon-size, 8px);
+  box-shadow: 0 0 10px var(--moon-glow, rgba(255,255,255,0.3));
+}
+
+.moon-orbiter .planet-body img {
+  animation: spin 10s linear infinite;
+}
+
 .celestial:hover,
-.celestial:focus {
+.celestial:focus,
+.celestial.is-hovered,
+.celestial.is-selected {
   z-index: 20;
   outline: none;
 }
@@ -627,9 +695,15 @@ ul { list-style: none; }
   pointer-events: none;
 }
 
-.celestial:hover .planet-body {
-  transform: scale(1.35);
-  box-shadow: 0 0 20px var(--glow, rgba(255,255,255,0.3));
+.celestial:hover .planet-body,
+.celestial.is-hovered .planet-body {
+  transform: scale(1.2);
+  box-shadow: 0 0 22px var(--glow, rgba(255,255,255,0.3));
+}
+
+.celestial.is-selected .planet-body {
+  transform: scale(1.22);
+  box-shadow: 0 0 28px var(--glow, rgba(255,255,255,0.35));
 }
 
 .celestial.highlighted .planet-body {
@@ -689,7 +763,92 @@ ul { list-style: none; }
   color: rgba(200,168,130,0.85);
 }
 
-/* Zoom controls */
+/* Explore progress & overlays */
+.explore-progress {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.explore-progress-bar {
+  width: min(260px, 45vw);
+  height: 8px;
+  background: rgba(255,255,255,0.12);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.explore-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  transition: width 0.4s ease;
+}
+
+#explore-progress-text {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.planet-tooltip,
+.planet-preview-card {
+  position: absolute;
+  z-index: 40;
+  pointer-events: none;
+  backdrop-filter: blur(16px);
+  background: rgba(9, 19, 38, 0.86);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.planet-tooltip {
+  padding: 0.45rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  transform: translate(-50%, -120%);
+  white-space: nowrap;
+}
+
+.planet-preview-card {
+  left: 1rem;
+  bottom: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.8rem 0.95rem;
+  min-width: 180px;
+}
+
+.preview-planet-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.preview-planet-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.preview-planet-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
 .zoom-controls {
   position: absolute;
   bottom: 1.5rem;
@@ -913,7 +1072,8 @@ ul { list-style: none; }
   flex-wrap: wrap;
 }
 
-.info-actions .btn-secondary { flex: 1; justify-content: center; }
+.info-actions .btn-secondary,
+.info-actions .btn-primary { flex: 1; justify-content: center; }
 
 /* ============================================================
    QUIZ & CHALLENGE — Shared Styles
@@ -1231,6 +1391,80 @@ ul { list-style: none; }
 }
 
 .result-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
+
+/* ============================================================
+   GAMES MODE
+   ============================================================ */
+.games-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.game-card {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  backdrop-filter: blur(14px);
+}
+
+.game-icon { font-size: 2rem; }
+
+.game-card h3 { font-size: 1.1rem; color: var(--text-primary); }
+.game-card p { color: var(--text-secondary); font-size: 0.95rem; }
+
+.game-screen { width: 100%; display: flex; flex-direction: column; gap: 1rem; }
+
+.order-pool,
+.order-zone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.order-item,
+.order-chip {
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-full);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.order-zone-empty {
+  color: var(--text-muted);
+  padding: 0.8rem 0.9rem;
+  border: 1px dashed var(--glass-border);
+  border-radius: var(--radius-md);
+}
+
+.certificate-card {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(123,97,255,0.15), rgba(0,217,255,0.12));
+  border: 1px solid rgba(123,97,255,0.3);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  text-align: center;
+}
+
+.certificate-badge { font-size: 2rem; }
 
 /* ============================================================
    COMPARE MODE
@@ -1740,6 +1974,10 @@ ul { list-style: none; }
 }
 
 @media (max-width: 700px) {
+  .nav-controls { gap: 0.2rem; }
+  .icon-btn { width: 32px; height: 32px; font-size: 0.9rem; }
+  .explore-progress { top: 0.75rem; }
+  .planet-preview-card { left: 0.75rem; right: 0.75rem; bottom: 0.75rem; min-width: auto; }
   :root { --nav-h: 54px; }
   .nav-tabs { display: none; } /* Use bottom nav on mobile? Skip for now */
   .top-nav { gap: 0.5rem; }
@@ -1761,4 +1999,5 @@ ul { list-style: none; }
   .quiz-wrapper { padding: 1rem; }
   .compare-selectors { flex-direction: column; }
   .vs-badge { margin-top: 0; }
+  .games-grid { grid-template-columns: 1fr; }
 }
